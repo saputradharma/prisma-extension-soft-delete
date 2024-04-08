@@ -30,12 +30,7 @@ type ConfigBound<F> = F extends (x: ModelConfig, ...args: infer P) => infer R
   ? (...args: P) => R
   : never;
 
-const rootOperations = [
-  "delete",
-  "deleteMany",
-  "update",
-  "updateMany",
-  "upsert",
+let readOperations = [
   "findFirst",
   "findFirstOrThrow",
   "findUnique",
@@ -46,6 +41,19 @@ const rootOperations = [
   "groupBy",
 ] as const;
 
+let writeOperations = [
+  "delete",
+  "deleteMany",
+  "update",
+  "updateMany",
+  "upsert",
+] as const;
+
+const rootOperations = [
+  ...writeOperations,
+  ...readOperations,
+] as const;
+
 export function createSoftDeleteExtension({
   models,
   defaultConfig = {
@@ -53,6 +61,7 @@ export function createSoftDeleteExtension({
     createValue: Boolean,
     allowToOneUpdates: false,
     allowCompoundUniqueIndexWhere: false,
+    readonly: true,
   },
 }: Config) {
   if (!defaultConfig.field) {
@@ -64,6 +73,10 @@ export function createSoftDeleteExtension({
     throw new Error(
       "prisma-extension-soft-delete: defaultConfig.createValue is required"
     );
+  }
+
+  if (defaultConfig.readonly) {
+    readOperations = [...readOperations];
   }
 
   const modelNames = Object.keys(models) as Prisma.ModelName[];

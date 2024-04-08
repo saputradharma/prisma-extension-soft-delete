@@ -5,6 +5,7 @@ export type ModelConfig = {
   createValue: (deleted: boolean) => any;
   allowToOneUpdates?: boolean;
   allowCompoundUniqueIndexWhere?: boolean;
+  readonly?: boolean;
 };
 
 export type Config = {
